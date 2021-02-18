@@ -1,7 +1,44 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Post
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password')
+
+
+class PostListSerializer(serializers.ModelSerializer):
+    created_by = serializers.ReadOnlyField(source='created_by.username')
+
+    class Meta:
+        model = Post
+        fields = ('id', 'title', 'text', 'likes', 'created', 'created_by')
+        read_only_fields = ('created', 'created_by')
+
+    @property
+    def request(self):
+        return self._context['request']
+
+    def create(self, data):
+        data.update({
+            'created_by': self.request.user,
+            'changed_by': self.request.user,
+        })
+        return super().create(data)
+
+    def update(self, instance, data):
+        data.update({
+            'changed_by': self.request.user
+        })
+        return super().update(instance, data)
+
+
+class PostSerializer(PostListSerializer):
+    likes = serializers.StringRelatedField(many=True, read_only=True)
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
