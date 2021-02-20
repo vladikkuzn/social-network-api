@@ -5,7 +5,8 @@ from .views import (
     PostViewSet, 
     UserViewSet,
     create_like,
-    delete_like
+    delete_like,
+    analytics
 )
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -17,6 +18,8 @@ urlpatterns = [
     path('login/refresh/', TokenRefreshView.as_view(), name = 'api_token_refresh'),
     path('posts/like/<int:post_id>', create_like, name='api_create_like'),
     path('posts/delete_like/<int:like_id>', delete_like, name='api_delete_like'),
+    #path('analytics/date_from=<date_from>&date_to=<date_to>', analytics, name='api_analytics'),
+    path('analytics/', analytics, name='api_analytics'),
 ]
 
 router = DefaultRouter()

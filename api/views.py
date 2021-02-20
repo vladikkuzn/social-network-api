@@ -13,6 +13,7 @@ from .serializers import (
     UserSerializer,
     LikeSerializer
 )
+from django.db.models import Count
 
 
 class LoginView(TokenObtainPairView):
@@ -61,3 +62,24 @@ def delete_like(request, like_id):
     if request.method == 'DELETE':
         like.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def analytics(request):
+    try:
+        date_from = request.GET['date_from']
+        date_to = request.GET['date_to']
+    except:
+        return Response("Provide right args", status=status.HTTP_400_BAD_REQUEST)
+
+    analytics = Like.objects.filter(
+        created__range=(date_from, date_to)
+    ).extra(
+        {'created': "date(created)"}
+    ).values(
+        'created'
+    ).annotate(
+        liked_count=Count('id')
+    )
+    return Response({'data': analytics})
