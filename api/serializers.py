@@ -113,3 +113,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(data['password'])
         user.save()
         return user
+
+
+class ActivitySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'last_login',
+            'last_request'
+        )

@@ -11,7 +11,8 @@ from .serializers import (
     PostListSerializer,
     PostSerializer, 
     UserSerializer,
-    LikeSerializer
+    LikeSerializer,
+    ActivitySerializer
 )
 from django.db.models import Count
 
@@ -83,3 +84,8 @@ def analytics(request):
         liked_count=Count('id')
     )
     return Response({'data': analytics})
+
+
+class Activity(generics.RetrieveAPIView):
+    serializer_class = ActivitySerializer
+    queryset = User.objects.all()

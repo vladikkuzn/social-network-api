@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -8,9 +9,8 @@ class User(AbstractUser):
         unique=True,
         db_index=True,
     )
-    last_visit = models.DateTimeField(
-        auto_now=True, 
-        editable=False
+    last_request = models.DateTimeField(
+        default=timezone.now
     )
     
     def __str__(self):
