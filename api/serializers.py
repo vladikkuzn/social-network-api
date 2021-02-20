@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post
+from .models import User, Post, Like
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 
@@ -8,7 +8,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = (
+            'username',
+            'email', 
+            'password'
+        )
 
 
 class PostListSerializer(serializers.ModelSerializer):
@@ -16,8 +20,18 @@ class PostListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'title', 'text', 'likes', 'created', 'created_by')
-        read_only_fields = ('created', 'created_by')
+        fields = (
+            'id', 
+            'title', 
+            'text', 
+            'likes', 
+            'created', 
+            'created_by'
+        )
+        read_only_fields = (
+            'created', 
+            'created_by'
+        )
 
     @property
     def request(self):
@@ -38,7 +52,23 @@ class PostListSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(PostListSerializer):
-    likes = serializers.StringRelatedField(many=True, read_only=True)
+    likes = serializers.StringRelatedField(
+        many=True, 
+        read_only=True
+    )
+
+
+class LikeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Like
+        fields = '__all__'
+        read_only_fields = (
+            'changed_datetime',
+            'changed_by',
+            'created_datetime',
+            'created_by'
+        )
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -51,12 +81,24 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    password_conf = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(
+        write_only=True, 
+        required=True, 
+        validators=[validate_password]
+    )
+    password_conf = serializers.CharField(
+        write_only=True, 
+        required=True
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'password_conf', 'email')
+        fields = (
+            'username', 
+            'password', 
+            'password_conf', 
+            'email'
+        )
     
     def validate(self, kwarg):
         if kwarg['password'] != kwarg['password_conf']:

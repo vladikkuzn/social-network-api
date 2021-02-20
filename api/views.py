@@ -1,13 +1,17 @@
-from django.shortcuts import render
-from rest_framework import generics, viewsets
+from django.shortcuts import render, get_object_or_404
+from rest_framework import generics, viewsets, serializers, status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import User, Post
+from .models import User, Post, Like
 from .serializers import (
     CustomTokenObtainPairSerializer,
     RegisterSerializer,
     PostListSerializer,
     PostSerializer, 
-    UserSerializer
+    UserSerializer,
+    LikeSerializer
 )
 
 
@@ -32,4 +36,28 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_like(request, post_id):
+    
+    def post_liked_by(user):
+        if Like.objects.filter(created_by=user, post__id=post_id).exists():
+            return True
+        return False
 
+    if request.method == 'POST':
+        serializer = LikeSerializer(data=request.data)
+        user = request.user
+        if serializer.is_valid() and not post_liked_by(user):
+            serializer.save(created_by=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_like(request, like_id):
+    like = get_object_or_404(Like, id=like_id)
+    if request.method == 'DELETE':
+        like.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

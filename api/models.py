@@ -8,7 +8,13 @@ class User(AbstractUser):
         unique=True,
         db_index=True,
     )
-    last_visit = models.DateTimeField(auto_now=True, editable=False)
+    last_visit = models.DateTimeField(
+        auto_now=True, 
+        editable=False
+    )
+    
+    def __str__(self):
+        return self.username
 
 
 class Post(models.Model):
@@ -16,11 +22,51 @@ class Post(models.Model):
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     changed = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='created_post')
-    changed_by = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='changed_post')
-
+    created_by = models.ForeignKey(
+        to=User, 
+        null=True, 
+        on_delete=models.SET_NULL, 
+        related_name='created_post'
+    )
+    changed_by = models.ForeignKey(
+        to=User, 
+        null=True, 
+        on_delete=models.SET_NULL, 
+        related_name='changed_post'
+    )
 
     class Meta:
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
 
+    def __str__(self):
+        return self.title
+
+
+class Like(models.Model):
+    post = models.ForeignKey(
+        Post, 
+        on_delete=models.CASCADE, 
+        related_name="likes"
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    changed = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        to=User, 
+        null=True, 
+        on_delete=models.SET_NULL, 
+        related_name='created_like'
+    )
+    changed_by = models.ForeignKey(
+        to=User, 
+        null=True, 
+        on_delete=models.SET_NULL, 
+        related_name='changed_like'
+    )
+
+    class Meta:
+        verbose_name = 'Like'
+        verbose_name_plural = 'Likes'
+
+    def __str__(self):
+        return f"{self.created_by} liked {self.post}"
