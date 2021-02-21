@@ -21,7 +21,6 @@ class LikeTests(APITestCase):
     def authorize_client(self):
         url = reverse('api_login')
         response = self.client.post(url, self.data, format='json')
-        self.client.post('api-auth/login/', self.data, format='json')
         self.client = APIClient()
         token = response.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
