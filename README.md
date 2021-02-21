@@ -26,7 +26,7 @@ $ python3.8 -m venv env
 $ source env/bin/activate
 $ (env)$ pip install -r requirements.txt
 $ (env)$ python manage.py migrate
-
+```
 
 ## Tests
 To run the tests ```python manage.py test ./api/tests/```
